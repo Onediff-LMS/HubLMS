@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:title",
+ "creation": "2024-09-19 10:07:28.220414",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "provider",
+  "url",
+  "youtube_id",
+  "column_break_rmee",
+  "publish_date",
+  "duration",
+  "youtube_statistics_section",
+  "likes",
+  "views",
+  "column_break_quoi",
+  "dislikes",
+  "comments",
+  "section_break_ejbv",
+  "description",
+  "image"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Provider",
+   "options": "YouTube\nVimeo",
+   "reqd": 1
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "youtube_id",
+   "fieldtype": "Data",
+   "label": "Youtube ID"
+  },
+  {
+   "fieldname": "column_break_rmee",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "publish_date",
+   "fieldtype": "Date",
+   "label": "Publish Date"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Duration",
+   "label": "Duration"
+  },
+  {
+   "fieldname": "youtube_statistics_section",
+   "fieldtype": "Section Break",
+   "label": "Youtube Statistics"
+  },
+  {
+   "fieldname": "likes",
+   "fieldtype": "Float",
+   "label": "Likes"
+  },
+  {
+   "fieldname": "views",
+   "fieldtype": "Float",
+   "label": "Views"
+  },
+  {
+   "fieldname": "column_break_quoi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dislikes",
+   "fieldtype": "Float",
+   "label": "Dislikes"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Float",
+   "label": "Comments"
+  },
+  {
+   "fieldname": "section_break_ejbv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-26 10:19:48.451109",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Video",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

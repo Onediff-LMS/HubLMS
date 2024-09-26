@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-17 23:13:20.339343",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "content_type",
+  "content",
+  "column_break_pkbt"
+ ],
+ "fields": [
+  {
+   "fieldname": "content_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Content Type",
+   "options": "\nLMS Article\nLMS Video\nLMS Quiz\nLMS Assignment\nLMS Live Class",
+   "reqd": 1
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Content",
+   "options": "content_type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pkbt",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-09-26 10:20:48.794748",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Content",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
