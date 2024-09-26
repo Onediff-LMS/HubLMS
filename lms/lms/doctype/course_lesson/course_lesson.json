@@ -8,12 +8,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "chapter",
-  "course",
-  "column_break_4",
   "title",
   "include_in_preview",
   "index_label",
+  "column_break_cull",
+  "course",
+  "chapter",
   "section_break_6",
   "youtube",
   "column_break_9",
@@ -22,6 +22,8 @@
   "question",
   "column_break_15",
   "file_type",
+  "section_break_zcvy",
+  "lesson_content",
   "section_break_11",
   "content",
   "body",
@@ -35,21 +37,17 @@
   {
    "fieldname": "chapter",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course Chapter",
-   "options": "Course Chapter",
-   "reqd": 1
+   "options": "Course Chapter"
   },
   {
    "default": "0",
    "fieldname": "include_in_preview",
    "fieldtype": "Check",
    "label": "Include In Preview"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "title",
@@ -90,6 +88,7 @@
    "fetch_from": "chapter.course",
    "fieldname": "course",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Course",
@@ -157,11 +156,25 @@
    "fieldname": "instructor_content",
    "fieldtype": "Text",
    "label": "Instructor Content"
+  },
+  {
+   "fieldname": "column_break_cull",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_zcvy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lesson_content",
+   "fieldtype": "Table",
+   "label": "Lesson Content",
+   "options": "LMS Content"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-03 10:48:17.525859",
+ "modified": "2024-09-26 19:25:38.020071",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Lesson",

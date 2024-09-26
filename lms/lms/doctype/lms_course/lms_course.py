@@ -247,31 +247,31 @@ def save_course(
 
 @frappe.whitelist()
 def save_chapter(course, title, chapter_description, idx, chapter):
-	if chapter:
-		doc = frappe.get_doc("Course Chapter", chapter)
-	else:
-		doc = frappe.get_doc({"doctype": "Course Chapter"})
+    if chapter:
+        doc = frappe.get_doc("Course Chapter", chapter)
+    else:
+        doc = frappe.get_doc({"doctype": "Course Chapter"})
 
-	doc.update({"course": course, "title": title, "description": chapter_description})
-	doc.save(ignore_permissions=True)
+    doc.update({"title": title, "description": chapter_description})
+    doc.save(ignore_permissions=True)
 
-	if chapter:
-		chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
-	else:
-		chapter_reference = frappe.get_doc(
-			{
-				"doctype": "Chapter Reference",
-				"parent": course,
-				"parenttype": "LMS Course",
-				"parentfield": "chapters",
-				"idx": idx,
-			}
-		)
+    if chapter:
+        chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
+    else:
+        chapter_reference = frappe.get_doc(
+            {
+                "doctype": "Chapter Reference",
+                "parent": chapter,
+                "parenttype": "Course Chapter",
+                "parentfield": "chapters",
+                "idx": idx,
+            }
+        )
 
-	chapter_reference.update({"chapter": doc.name})
-	chapter_reference.save(ignore_permissions=True)
+    chapter_reference.update({"chapter": doc.name})
+    chapter_reference.save(ignore_permissions=True)
 
-	return doc.name
+    return doc.name
 
 
 @frappe.whitelist()
@@ -288,43 +288,37 @@ def save_lesson(
 	question=None,
 	file_type=None,
 ):
-	if lesson:
-		doc = frappe.get_doc("Course Lesson", lesson)
-	else:
-		doc = frappe.get_doc({"doctype": "Course Lesson"})
+    if lesson:
+        doc = frappe.get_doc("Course Lesson", lesson)
+    else:
+        doc = frappe.get_doc({"doctype": "Course Lesson"})
 
-	doc.update(
+    doc.update(
 		{
-			"chapter": chapter,
 			"title": title,
 			"body": body,
 			"instructor_notes": instructor_notes,
 			"include_in_preview": preview,
-			"youtube": youtube,
-			"quiz_id": quiz_id,
-			"question": question,
-			"file_type": file_type,
 		}
 	)
-	doc.save(ignore_permissions=True)
+    doc.save(ignore_permissions=True)
 
-	if lesson:
-		lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
-	else:
-		lesson_reference = frappe.get_doc(
-			{
-				"doctype": "Lesson Reference",
-				"parent": chapter,
-				"parenttype": "Course Chapter",
-				"parentfield": "lessons",
-				"idx": idx,
-			}
-		)
+    if lesson:
+        lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
+    else:
+        lesson_reference = frappe.get_doc(
+            {
+                "doctype": "Lesson Reference",
+                "parent": lesson,
+                "parenttype": "Course Lesson",
+                "parentfield": "lessons",
+                "idx": idx,
+            }
+        )
 
-	lesson_reference.update({"lesson": doc.name})
-	lesson_reference.save(ignore_permissions=True)
-
-	return doc.name
+    lesson_reference.update({"lesson": doc.name})
+    lesson_reference.save(ignore_permissions=True)
+    return doc.name
 
 
 @frappe.whitelist()

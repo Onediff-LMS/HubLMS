@@ -11,14 +11,6 @@ import json
 
 
 class CourseLesson(Document):
-	def validate(self):
-		# self.check_and_create_folder()
-		self.validate_quiz_id()
-
-	def validate_quiz_id(self):
-		if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
-			frappe.throw(_("Invalid Quiz ID"))
-
 	def on_update(self):
 		dynamic_documents = ["Exercise", "Quiz"]
 		for section in dynamic_documents:
@@ -54,16 +46,6 @@ class CourseLesson(Document):
 			ex.index_ = 0
 			ex.index_label = ""
 			ex.save(ignore_permissions=True)
-
-	def check_and_create_folder(self):
-		args = {
-			"doctype": "File",
-			"is_folder": True,
-			"file_name": f"{self.name} {self.course}",
-		}
-		if not frappe.db.exists(args):
-			folder = frappe.get_doc(args)
-			folder.save(ignore_permissions=True)
 
 	def get_exercises(self):
 		if not self.body:
@@ -162,4 +144,4 @@ def get_quiz_progress(lesson):
 
 @frappe.whitelist()
 def get_lesson_info(chapter):
-	return frappe.db.get_value("Course Chapter", chapter, "course")
+	return frappe.db.get_value("Course Chapter", chapter)
