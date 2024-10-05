@@ -18,10 +18,6 @@
   "shuffle_questions",
   "column_break_clsh",
   "limit_questions_to",
-  "section_break_nlyb",
-  "randomize_questions",
-  "column_break_pvwi",
-  "question_limit",
   "section_break_sbjx",
   "questions",
   "add_multiple",
@@ -138,30 +134,11 @@
    "fieldname": "add_multiple",
    "fieldtype": "Button",
    "label": "Add Multiple"
-  },
-  {
-   "fieldname": "section_break_nlyb",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "randomize_questions",
-   "fieldtype": "Check",
-   "label": "Randomize Questions"
-  },
-  {
-   "fieldname": "column_break_pvwi",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "question_limit",
-   "fieldtype": "Int",
-   "label": "Question Limit"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-30 22:12:41.514923",
+ "modified": "2024-10-05 19:41:40.363601",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

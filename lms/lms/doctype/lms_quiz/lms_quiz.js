@@ -5,37 +5,26 @@ frappe.ui.form.on("LMS Quiz", {
 	onload: function (frm) {
 		frm.get_field('questions').grid.cannot_add_rows = true;
 	},
-	before_save: function (frm) {
-		if (frm.doc.randomize_questions && frm.doc.question_limit > 0) {
-			const questions = frm.doc.questions;
-			let shuffledQuestions = questions.sort(() => Math.random() - 0.5);
-			let uniqueQuestions = [];
-			let questionSet = new Set();
+	validate: function (frm) {
+		let limit = frm.doc.limit_questions_to;
+		let questionCount = frm.doc.questions.length;
 
-			shuffledQuestions.forEach((q) => {
-				if (!questionSet.has(q.question)) {
-					questionSet.add(q.question);
-					uniqueQuestions.push(q);
-				}
+		if (questionCount < limit) {
+			frappe.msgprint({
+				title: __('Validation Error'),
+				message: __('The limit of questions cannot be grater than the number of questions added.'),
+				indicator: 'red'
 			});
-			uniqueQuestions = uniqueQuestions.slice(0, frm.doc.question_limit);
-			frm.clear_table('questions');
-			uniqueQuestions.forEach((q) => {
-				let child = frm.add_child('questions');
-				child.question = q.question;
-				child.marks = q.marks;
-			});
-
-			frm.refresh_field('questions');
+			frappe.validated = false;
 		}
 	},
 	add_multiple: function (frm) {
         const dialog = new frappe.ui.form.MultiSelectDialog({
             doctype: "LMS Question",
 	    	target: this.cur_frm,
-            columns: { 'question': null},
-            setters: { 'title': null,'category':null },
-            size: 'large',
+			columns: { 'question': null },
+			setters: { 'title': null },
+			add_filters_group: 1,
             action(selections) {
                 $.each(selections, function (index, item) {
                     var child = frm.add_child('questions');
@@ -43,9 +32,6 @@ frappe.ui.form.on("LMS Quiz", {
                 });
                 frm.refresh_field('questions');
                 dialog.dialog.hide();
-            },
-            onload_post_render: function () {
-                dialog.dialog.$wrapper.find(".btn-secondary").addClass("hidden");
             },
         });
     }
