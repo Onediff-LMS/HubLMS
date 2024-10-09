@@ -7,6 +7,7 @@
  "field_order": [
   "question",
   "title",
+  "mandatory",
   "column_break_qcpo",
   "marks",
   "category",
@@ -60,12 +61,19 @@
    "in_list_view": 1,
    "label": "Category",
    "options": "LMS Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "mandatory",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Mandatory"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-05 19:51:41.087843",
+ "modified": "2024-10-09 16:02:43.208363",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

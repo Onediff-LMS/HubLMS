@@ -8,23 +8,40 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "max_attempts",
-  "show_answers",
   "column_break_gaac",
   "total_marks",
   "passing_percentage",
-  "show_submission_history",
-  "section_break_tzbu",
+  "section_break_yayn",
   "shuffle_questions",
-  "column_break_clsh",
+  "column_break_hidl",
   "limit_questions_to",
+  "section_break_vzwt",
+  "instructions",
   "section_break_sbjx",
   "questions",
   "add_multiple",
   "section_break_3",
   "lesson",
   "column_break_5",
-  "course"
+  "course",
+  "settings_tab",
+  "max_attempts",
+  "delay_between_retake",
+  "column_break_bpxm",
+  "time",
+  "shared_quiz",
+  "section_break_xrtu",
+  "show_answers",
+  "column_break_iyax",
+  "show_submission_history",
+  "progress_settings_section",
+  "forced_submitted",
+  "column_break_wpgx",
+  "forced_submitted_time",
+  "certification_tab",
+  "enable_certification",
+  "column_break_wmad",
+  "expiry"
  ],
  "fields": [
   {
@@ -44,6 +61,7 @@
   {
    "fieldname": "lesson",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Lesson",
    "options": "Course Lesson",
    "read_only": 1
@@ -58,6 +76,7 @@
    "fetch_from": "lesson.course",
    "fieldname": "course",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Course",
    "options": "LMS Course",
    "read_only": 1
@@ -123,22 +142,105 @@
    "label": "Limit Questions To"
   },
   {
-   "fieldname": "section_break_tzbu",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_clsh",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "add_multiple",
    "fieldtype": "Button",
    "label": "Add Multiple"
+  },
+  {
+   "fieldname": "section_break_vzwt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "instructions",
+   "fieldtype": "Text Editor",
+   "label": "Instructions"
+  },
+  {
+   "fieldname": "settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Settings"
+  },
+  {
+   "fieldname": "section_break_xrtu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_iyax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bpxm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Int",
+   "label": "Time Per Question (in Seconds)"
+  },
+  {
+   "fieldname": "certification_tab",
+   "fieldtype": "Tab Break",
+   "label": "Certification"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_certification",
+   "fieldtype": "Check",
+   "label": "Enable Certification"
+  },
+  {
+   "fieldname": "column_break_wmad",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Int",
+   "label": "Certification Expires After (Years)"
+  },
+  {
+   "fieldname": "section_break_yayn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_hidl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delay_between_retake",
+   "fieldtype": "Time",
+   "label": "Delay Between Retake"
+  },
+  {
+   "default": "0",
+   "fieldname": "shared_quiz",
+   "fieldtype": "Check",
+   "label": "Shared Quiz"
+  },
+  {
+   "fieldname": "progress_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Progress Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "forced_submitted",
+   "fieldtype": "Check",
+   "label": "Forced Submitted"
+  },
+  {
+   "fieldname": "column_break_wpgx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.forced_submitted",
+   "fieldname": "forced_submitted_time",
+   "fieldtype": "Time",
+   "label": "Forced Submitted Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-05 19:41:40.363601",
+ "modified": "2024-10-09 17:37:55.505171",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

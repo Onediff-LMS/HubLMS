@@ -6,10 +6,7 @@ frappe.ui.form.on("LMS Quiz", {
 		frm.get_field('questions').grid.cannot_add_rows = true;
 	},
 	validate: function (frm) {
-		let limit = frm.doc.limit_questions_to;
-		let questionCount = frm.doc.questions.length;
-
-		if (questionCount < limit) {
+		if (frm.doc.questions.length < frm.doc.limit_questions_to) {
 			frappe.msgprint({
 				title: __('Validation Error'),
 				message: __('The limit of questions cannot be grater than the number of questions added.'),
@@ -17,23 +14,54 @@ frappe.ui.form.on("LMS Quiz", {
 			});
 			frappe.validated = false;
 		}
+		if (frm.doc.limit_questions_to == 0){	
+			frappe.msgprint({
+				title: __('Validation Error'),
+				message: __('The limit of questions cannot be 0'),
+				indicator: 'red'
+			});
+			frappe.validated = false;
+		}
 	},
 	add_multiple: function (frm) {
-        const dialog = new frappe.ui.form.MultiSelectDialog({
-            doctype: "LMS Question",
-	    	target: this.cur_frm,
-			columns: { 'question': null },
-			setters: { 'title': null },
-			add_filters_group: 1,
-            action(selections) {
-                $.each(selections, function (index, item) {
-                    var child = frm.add_child('questions');
-                    child.question = item;
-                });
-                frm.refresh_field('questions');
-                dialog.dialog.hide();
-            },
-        });
+		const table_1 = [{
+			fieldname: "table_2",
+			fieldtype: "table",
+			in_list_view: 1,
+			label: "table_2"
+		},];
+		var dialog = new frappe.ui.Dialog({
+			title: __('Custom Size Dialog'),
+			  fields: [
+				  {fieldtype: "Section Break"},
+				  {"fieldtype": "Heading" , "fieldname": "form_name" , "label": "Form Name", "options": ""},
+	
+				  {"fieldtype": "Link" , "fieldname": "link_1" , "label": "", "options": "value"},
+				  {"fieldtype": "Heading" , "fieldname": "blocks_details" , "label": "Blocks Details", "options": ""},
+				  {fieldtype: "Table" , fieldname : "table_2" , label: "", "options": "LMS Question",
+				  cannot_add_rows: false,in_place_edit: true, reqd: 0, data:[],field: table_1},
+				  {"fieldtype": "Data" , "fieldname": "qg_cbm" , "label": "QG. CBM", "options": ""},
+				  {"fieldtype": "Heading" , "fieldname": "transport" , "label": "Transport", "options": ""},
+				  //{"fieldtype": "Table" , "fieldname": "table_3" , "label": "", "options": "testing"},
+				],
+		  });
+		  //d.fields_dict.ht.$wrapper.html('Hello World');
+		  dialog.show()
+        // const dialog = new frappe.ui.form.MultiSelectDialog({
+        //     doctype: "LMS Question",
+	    // 	target: this.cur_frm,
+		// 	columns: { 'question': null },
+		// 	setters: { 'title':null },
+		// 	add_filters_group: 1,
+        //     action(selections) {
+        //         $.each(selections, function (index, item) {
+        //             var child = frm.add_child('questions');
+        //             child.question = item;
+        //         });
+        //         frm.refresh_field('questions');
+        //         dialog.dialog.hide();
+        //     },
+        // });
     }
 });
 
@@ -44,5 +72,5 @@ frappe.ui.form.on("LMS Quiz Question", {
 			total_marks += question.marks;
 		});
 		frm.doc.total_marks = total_marks;
-	},
+	}
 });
