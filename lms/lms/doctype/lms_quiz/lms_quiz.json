@@ -174,7 +174,7 @@
   },
   {
    "fieldname": "time",
-   "fieldtype": "Int",
+   "fieldtype": "Time",
    "label": "Time Per Question (in Seconds)"
   },
   {
@@ -207,7 +207,7 @@
   },
   {
    "fieldname": "delay_between_retake",
-   "fieldtype": "Time",
+   "fieldtype": "Duration",
    "label": "Delay Between Retake"
   },
   {
@@ -240,7 +240,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-09 17:37:55.505171",
+ "modified": "2024-10-11 19:01:25.583803",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",

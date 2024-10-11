@@ -30,38 +30,21 @@ frappe.ui.form.on("LMS Quiz", {
 			in_list_view: 1,
 			label: "table_2"
 		},];
-		var dialog = new frappe.ui.Dialog({
-			title: __('Custom Size Dialog'),
-			  fields: [
-				  {fieldtype: "Section Break"},
-				  {"fieldtype": "Heading" , "fieldname": "form_name" , "label": "Form Name", "options": ""},
-	
-				  {"fieldtype": "Link" , "fieldname": "link_1" , "label": "", "options": "value"},
-				  {"fieldtype": "Heading" , "fieldname": "blocks_details" , "label": "Blocks Details", "options": ""},
-				  {fieldtype: "Table" , fieldname : "table_2" , label: "", "options": "LMS Question",
-				  cannot_add_rows: false,in_place_edit: true, reqd: 0, data:[],field: table_1},
-				  {"fieldtype": "Data" , "fieldname": "qg_cbm" , "label": "QG. CBM", "options": ""},
-				  {"fieldtype": "Heading" , "fieldname": "transport" , "label": "Transport", "options": ""},
-				  //{"fieldtype": "Table" , "fieldname": "table_3" , "label": "", "options": "testing"},
-				],
-		  });
-		  //d.fields_dict.ht.$wrapper.html('Hello World');
-		  dialog.show()
-        // const dialog = new frappe.ui.form.MultiSelectDialog({
-        //     doctype: "LMS Question",
-	    // 	target: this.cur_frm,
-		// 	columns: { 'question': null },
-		// 	setters: { 'title':null },
-		// 	add_filters_group: 1,
-        //     action(selections) {
-        //         $.each(selections, function (index, item) {
-        //             var child = frm.add_child('questions');
-        //             child.question = item;
-        //         });
-        //         frm.refresh_field('questions');
-        //         dialog.dialog.hide();
-        //     },
-        // });
+        const dialog = new frappe.ui.form.MultiSelectDialog({
+            doctype: "LMS Question",
+	    	target: this.cur_frm,
+			columns: { 'question': null },
+			setters: { 'title':null },
+			add_filters_group: 1,
+            action(selections) {
+                $.each(selections, function (index, item) {
+                    var child = frm.add_child('questions');
+                    child.question = item;
+                });
+                frm.refresh_field('questions');
+                dialog.dialog.hide();
+            },
+        });
     }
 });
 

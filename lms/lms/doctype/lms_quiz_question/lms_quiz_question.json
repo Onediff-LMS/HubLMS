@@ -8,6 +8,7 @@
   "question",
   "title",
   "mandatory",
+  "time",
   "column_break_qcpo",
   "marks",
   "category",
@@ -68,12 +69,19 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Mandatory"
+  },
+  {
+   "fetch_from": "question.time",
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-09 16:02:43.208363",
+ "modified": "2024-10-11 18:09:05.193337",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

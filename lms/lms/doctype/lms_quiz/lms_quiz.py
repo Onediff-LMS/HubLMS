@@ -20,6 +20,7 @@ class LMSQuiz(Document):
 		self.validate_duplicate_questions()
 		self.validate_limit()
 		self.calculate_total_marks()
+		self.calculate_time()
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -47,9 +48,14 @@ class LMSQuiz(Document):
 			)
 		else:
 			self.total_marks = sum(cint(question.marks) for question in self.questions)
+			
+	def calculate_time(self):
+		if self.time:
+			for question in self.questions:
+				question.time = self.time 
 
 	def autoname(self):
-		if not self.name:
+		if not self.name:	
 			self.name = generate_slug(self.title, "LMS Quiz")
 
 	def get_last_submission_details(self):
