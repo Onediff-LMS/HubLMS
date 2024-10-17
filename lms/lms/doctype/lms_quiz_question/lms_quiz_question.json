@@ -13,7 +13,8 @@
   "marks",
   "category",
   "section_break_huup",
-  "question_detail"
+  "question_detail",
+  "type"
  ],
  "fields": [
   {
@@ -76,6 +77,15 @@
    "fieldtype": "Time",
    "in_list_view": 1,
    "label": "Time"
+  },
+  {
+   "fetch_from": "question.type",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Choices\nUser Input\nOpen Ended",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,

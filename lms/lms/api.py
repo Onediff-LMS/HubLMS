@@ -289,11 +289,16 @@ def get_file_info(file_url):
 @frappe.whitelist(allow_guest=True)
 def get_branding():
 	"""Get branding details."""
-	return {
-		"brand_name": frappe.db.get_single_value("Website Settings", "app_name"),
-		"brand_html": frappe.db.get_single_value("Website Settings", "brand_html"),
-		"favicon": frappe.db.get_single_value("Website Settings", "favicon"),
-	}
+	website_settings = frappe.get_single("Website Settings")
+	image_fields = ["banner_image", "footer_logo", "favicon"]
+
+	for field in image_fields:
+		if website_settings.get(field):
+			website_settings.update({field: get_file_info(website_settings.get(field))})
+		else:
+			website_settings.update({field: None})
+
+	return website_settings
 
 
 @frappe.whitelist()
@@ -320,7 +325,7 @@ def get_evaluator_details(evaluator):
 		)
 
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
-		doc = frappe.get_doc("Course Evaluator", evaluator, as_dict=1)
+		doc = frappe.get_doc("Course Evaluator", evaluator)
 	else:
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
@@ -574,14 +579,17 @@ def get_members(start=0, search=""):
 	"""
 
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
+	or_filters = {}
 
 	if search:
-		filters["full_name"] = ["like", f"%{search}%"]
+		or_filters["full_name"] = ["like", f"%{search}%"]
+		or_filters["email"] = ["like", f"%{search}%"]
 
 	members = frappe.get_all(
 		"User",
 		filters=filters,
 		fields=["name", "full_name", "user_image", "username", "last_active"],
+		or_filters=or_filters,
 		page_length=20,
 		start=start,
 	)
@@ -706,3 +714,49 @@ def delete_documents(doctype, documents):
 	frappe.only_for("Moderator")
 	for doc in documents:
 		frappe.delete_doc(doctype, doc)
+
+
+@frappe.whitelist()
+def get_payment_gateway_details(payment_gateway):
+	fields = []
+	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
+
+	if gateway.gateway_controller is None:
+		try:
+			data = frappe.get_doc(f"{payment_gateway} Settings").as_dict()
+			meta = frappe.get_meta(f"{payment_gateway} Settings").fields
+			doctype = f"{payment_gateway} Settings"
+			docname = f"{payment_gateway} Settings"
+		except Exception:
+			frappe.throw(_("{0} Settings not found").format(payment_gateway))
+	else:
+		try:
+			data = frappe.get_doc(gateway.gateway_settings, gateway.gateway_controller).as_dict()
+			meta = frappe.get_meta(gateway.gateway_settings).fields
+			doctype = gateway.gateway_settings
+			docname = gateway.gateway_controller
+		except Exception:
+			frappe.throw(_("{0} Settings not found").format(payment_gateway))
+
+	for row in meta:
+		if row.fieldtype not in ["Column Break", "Section Break"]:
+			if row.fieldtype in ["Attach", "Attach Image"]:
+				fieldtype = "Upload"
+				data[row.fieldname] = get_file_info(data.get(row.fieldname))
+			else:
+				fieldtype = row.fieldtype
+
+			fields.append(
+				{
+					"label": row.label,
+					"name": row.fieldname,
+					"type": fieldtype,
+				}
+			)
+
+	return {
+		"fields": fields,
+		"data": data,
+		"doctype": doctype,
+		"docname": docname,
+	}
