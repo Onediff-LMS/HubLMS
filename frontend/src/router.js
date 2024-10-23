@@ -164,6 +164,12 @@ const routes = [
 		component: () => import('@/pages/QuizSubmission.vue'),
 		props: true,
 	},
+	{
+		path: '/manage-course/:courseName',
+		name: 'ManageCourse',
+		component: () => import('@/pages/ManageCourse.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({
