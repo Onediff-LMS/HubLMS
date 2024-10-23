@@ -37,6 +37,10 @@
   "section_break_gglp",
   "chapters",
   "related_courses",
+  "section_break_tjak",
+  "students",
+  "assessment_tab",
+  "assessment",
   "pricing_tab",
   "pricing_section",
   "paid_course",
@@ -249,6 +253,27 @@
    "fieldtype": "Link",
    "label": "Category",
    "options": "LMS Category"
+  },
+  {
+   "fieldname": "section_break_tjak",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "students",
+   "fieldtype": "Table",
+   "label": "Students",
+   "options": "Batch Student"
+  },
+  {
+   "fieldname": "assessment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Assessment"
+  },
+  {
+   "fieldname": "assessment",
+   "fieldtype": "Table",
+   "label": "Assessment",
+   "options": "LMS Assessment"
   }
  ],
  "is_published_field": "published",
@@ -275,7 +300,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-09-21 10:23:58.633912",
+ "modified": "2024-10-23 14:01:55.346780",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

@@ -14,7 +14,7 @@ frappe.ui.form.on("LMS Quiz", {
 			});
 			frappe.validated = false;
 		}
-		if (frm.doc.limit_questions_to == 0){	
+		if (frm.doc.limit_questions_to == 0) {
 			frappe.msgprint({
 				title: __('Validation Error'),
 				message: __('The limit of questions cannot be 0'),
@@ -30,22 +30,22 @@ frappe.ui.form.on("LMS Quiz", {
 			in_list_view: 1,
 			label: "table_2"
 		},];
-        const dialog = new frappe.ui.form.MultiSelectDialog({
-            doctype: "LMS Question",
-	    	target: this.cur_frm,
+		const dialog = new frappe.ui.form.MultiSelectDialog({
+			doctype: "LMS Question",
+			target: this.cur_frm,
 			columns: { 'question': null },
-			setters: { 'title':null },
+			setters: { 'title': null },
 			add_filters_group: 1,
-            action(selections) {
-                $.each(selections, function (index, item) {
-                    var child = frm.add_child('questions');
-                    child.question = item;
-                });
-                frm.refresh_field('questions');
-                dialog.dialog.hide();
-            },
-        });
-    }
+			action(selections) {
+				$.each(selections, function (index, item) {
+					var child = frm.add_child('questions');
+					child.question = item;
+				});
+				frm.refresh_field('questions');
+				dialog.dialog.hide();
+			},
+		});
+	}
 });
 
 frappe.ui.form.on("LMS Quiz Question", {
