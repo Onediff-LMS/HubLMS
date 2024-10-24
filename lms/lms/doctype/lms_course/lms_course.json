@@ -262,7 +262,7 @@
    "fieldname": "students",
    "fieldtype": "Table",
    "label": "Students",
-   "options": "Batch Student"
+   "options": "Course Student"
   },
   {
    "fieldname": "assessment_tab",
@@ -300,7 +300,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-10-23 14:01:55.346780",
+ "modified": "2024-10-24 16:29:24.985013",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

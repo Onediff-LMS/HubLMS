@@ -10,7 +10,7 @@
   "title",
   "host",
   "batch_name",
-  "course",
+  "course_name",
   "column_break_astv",
   "date",
   "time",
@@ -125,7 +125,7 @@
    "options": "No Recording\nLocal\nCloud"
   },
   {
-   "fieldname": "course",
+   "fieldname": "course_name",
    "fieldtype": "Link",
    "label": "Course",
    "options": "LMS Course"
@@ -133,7 +133,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-23 13:31:58.553515",
+ "modified": "2024-10-24 17:27:13.633874",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Live Class",
