@@ -3,14 +3,42 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button variant="solid" @click="submitQuiz()">
-			{{ __('Save') }}
-		</Button>
+		<div class="space-x-2">
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
+					name: 'QuizPage',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Open') }}
+				</Button>
+			</router-link>
+			<router-link
+				v-if="quizDetails.data?.name"
+				:to="{
+					name: 'QuizSubmissionList',
+					params: {
+						quizID: quizDetails.data.name,
+					},
+				}"
+			>
+				<Button>
+					{{ __('Submission List') }}
+				</Button>
+			</router-link>
+			<Button variant="solid" @click="submitQuiz()">
+				{{ __('Save') }}
+			</Button>
+		</div>
 	</header>
 	<div class="w-3/4 mx-auto py-5">
 		<!-- Details -->
 		<div class="mb-8">
-			<div class="text-sm font-semibold mb-4">
+			<div class="font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
 			<FormControl
@@ -22,10 +50,16 @@
 				"
 			/>
 			<div v-if="quizDetails.data?.name">
-				<div class="grid grid-cols-3 gap-5 mt-4 mb-8">
+				<div class="grid grid-cols-2 gap-5 mt-4 mb-8">
 					<FormControl
+						type="number"
 						v-model="quiz.max_attempts"
 						:label="__('Maximun Attempts')"
+					/>
+					<FormControl
+						type="number"
+						v-model="quiz.duration"
+						:label="__('Duration (in minutes)')"
 					/>
 					<FormControl
 						v-model="quiz.total_marks"
@@ -40,7 +74,7 @@
 
 				<!-- Settings -->
 				<div class="mb-8">
-					<div class="text-sm font-semibold mb-4">
+					<div class="font-semibold mb-4">
 						{{ __('Settings') }}
 					</div>
 					<div class="grid grid-cols-3 gap-5 my-4">
@@ -58,7 +92,7 @@
 				</div>
 
 				<div class="mb-8">
-					<div class="text-sm font-semibold mb-4">
+					<div class="font-semibold mb-4">
 						{{ __('Shuffle Settings') }}
 					</div>
 					<div class="grid grid-cols-3">
@@ -78,7 +112,7 @@
 				<!-- Questions -->
 				<div>
 					<div class="flex items-center justify-between mb-4">
-						<div class="text-sm font-semibold">
+						<div class="font-semibold">
 							{{ __('Questions') }}
 						</div>
 						<Button @click="openQuestionModal()">
@@ -198,6 +232,7 @@ const quiz = reactive({
 	total_marks: 0,
 	passing_percentage: 0,
 	max_attempts: 0,
+	duration: 0,
 	limit_questions_to: 0,
 	show_answers: true,
 	show_submission_history: false,
@@ -347,17 +382,17 @@ const questionColumns = computed(() => {
 		{
 			label: __('ID'),
 			key: 'question',
-			width: '25%',
+			width: '10rem',
 		},
 		{
 			label: __('Question'),
 			key: __('question_detail'),
-			width: '60%',
+			width: '40rem',
 		},
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: '10%',
+			width: '5rem',
 		},
 	]
 })

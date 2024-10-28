@@ -120,6 +120,7 @@
 				</div>
 				<div
 					v-if="
+						lesson.data.instructor_content &&
 						JSON.parse(lesson.data.instructor_content)?.blocks?.length > 1 &&
 						allowInstructorContent()
 					"
@@ -244,7 +245,10 @@ const lesson = createResource({
 	onSuccess(data) {
 		lessonProgress.value = data.membership?.progress
 		if (data.content) editor.value = renderEditor('editor', data.content)
-		if (JSON.parse(data.instructor_content)?.blocks?.length > 1)
+		if (
+			data.instructor_content &&
+			JSON.parse(data.instructor_content)?.blocks?.length > 1
+		)
 			instructorEditor.value = renderEditor(
 				'instructor-content',
 				data.instructor_content
@@ -275,7 +279,7 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = () => {
-	if (user.data && !lesson.data?.progress) {
+	if (user.data && lesson.data && !lesson.data.progress) {
 		progress.submit()
 	}
 }

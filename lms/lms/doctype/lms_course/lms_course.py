@@ -4,11 +4,21 @@
 import json
 import random
 import frappe
+import base64
+import requests
 from frappe.model.document import Document
-from frappe.utils import cint, today
+from frappe.utils import (
+	cint,
+	today,
+	format_date,
+	format_datetime,
+	get_time,
+	getdate,
+	add_days,
+)
 from frappe.utils.telemetry import capture
 from lms.lms.utils import get_chapters, can_create_courses
-from ...utils import generate_slug, validate_image
+from ...utils import generate_slug, validate_image, update_payment_record
 from frappe import _
 
 
@@ -18,6 +28,7 @@ class LMSCourse(Document):
 		self.validate_instructors()
 		self.validate_video_link()
 		self.validate_status()
+		self.validate_payments_app()
 		self.image = validate_image(self.image)
 
 	def validate_published(self):
@@ -44,9 +55,19 @@ class LMSCourse(Document):
 		if self.published:
 			self.status = "Approved"
 
+	def validate_payments_app(self):
+		if self.paid_course:
+			installed_apps = frappe.get_installed_apps()
+			if "payments" not in installed_apps:
+				frappe.throw(_("Please install the Payments app to create a paid courses."))
+
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
+
+	def on_payment_authorized(self, payment_status):
+		if payment_status in ["Authorized", "Completed"]:
+			update_payment_record("LMS Course", self.name)
 
 	def send_email_to_interested_users(self):
 		interested_users = frappe.get_all(
@@ -71,7 +92,11 @@ class LMSCourse(Document):
 				now=True,
 			)
 			frappe.enqueue(
-				method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args
+				method=frappe.sendmail,
+				queue="short",
+				timeout=300,
+				is_async=True,
+				**email_args,
 			)
 			frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
@@ -107,7 +132,11 @@ class LMSCourse(Document):
 			return
 
 		doc = frappe.get_doc(
-			{"doctype": "LMS Course Mentor Mapping", "course": self.name, "mentor": email}
+			{
+				"doctype": "LMS Course Mentor Mapping",
+				"course": self.name,
+				"mentor": email,
+			}
 		)
 		doc.insert()
 
@@ -130,7 +159,9 @@ class LMSCourse(Document):
 		batches = frappe.get_all("LMS Batch Old", {"course": self.name})
 		if mentor:
 			# TODO: optimize this
-			memberships = frappe.db.get_all("LMS Enrollment", {"member": mentor}, ["batch_old"])
+			memberships = frappe.db.get_all(
+				"LMS Enrollment", {"member": mentor}, ["batch_old"]
+			)
 			batch_names = {m.batch_old for m in memberships}
 			return [b for b in batches if b.name in batch_names]
 
@@ -247,31 +278,31 @@ def save_course(
 
 @frappe.whitelist()
 def save_chapter(course, title, chapter_description, idx, chapter):
-    if chapter:
-        doc = frappe.get_doc("Course Chapter", chapter)
-    else:
-        doc = frappe.get_doc({"doctype": "Course Chapter"})
+	if chapter:
+		doc = frappe.get_doc("Course Chapter", chapter)
+	else:
+		doc = frappe.get_doc({"doctype": "Course Chapter"})
 
-    doc.update({"title": title, "description": chapter_description})
-    doc.save(ignore_permissions=True)
+	doc.update({"title": title, "description": chapter_description})
+	doc.save(ignore_permissions=True)
 
-    if chapter:
-        chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
-    else:
-        chapter_reference = frappe.get_doc(
-            {
-                "doctype": "Chapter Reference",
-                "parent": chapter,
-                "parenttype": "Course Chapter",
-                "parentfield": "chapters",
-                "idx": idx,
-            }
-        )
+	if chapter:
+		chapter_reference = frappe.get_doc("Chapter Reference", {"chapter": chapter})
+	else:
+		chapter_reference = frappe.get_doc(
+			{
+				"doctype": "Chapter Reference",
+				"parent": chapter,
+				"parenttype": "Course Chapter",
+				"parentfield": "chapters",
+				"idx": idx,
+			}
+		)
 
-    chapter_reference.update({"chapter": doc.name})
-    chapter_reference.save(ignore_permissions=True)
+	chapter_reference.update({"chapter": doc.name})
+	chapter_reference.save(ignore_permissions=True)
 
-    return doc.name
+	return doc.name
 
 
 @frappe.whitelist()
@@ -288,12 +319,12 @@ def save_lesson(
 	question=None,
 	file_type=None,
 ):
-    if lesson:
-        doc = frappe.get_doc("Course Lesson", lesson)
-    else:
-        doc = frappe.get_doc({"doctype": "Course Lesson"})
+	if lesson:
+		doc = frappe.get_doc("Course Lesson", lesson)
+	else:
+		doc = frappe.get_doc({"doctype": "Course Lesson"})
 
-    doc.update(
+	doc.update(
 		{
 			"title": title,
 			"body": body,
@@ -301,24 +332,24 @@ def save_lesson(
 			"include_in_preview": preview,
 		}
 	)
-    doc.save(ignore_permissions=True)
+	doc.save(ignore_permissions=True)
 
-    if lesson:
-        lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
-    else:
-        lesson_reference = frappe.get_doc(
-            {
-                "doctype": "Lesson Reference",
-                "parent": lesson,
-                "parenttype": "Course Lesson",
-                "parentfield": "lessons",
-                "idx": idx,
-            }
-        )
+	if lesson:
+		lesson_reference = frappe.get_doc("Lesson Reference", {"lesson": lesson})
+	else:
+		lesson_reference = frappe.get_doc(
+			{
+				"doctype": "Lesson Reference",
+				"parent": lesson,
+				"parenttype": "Course Lesson",
+				"parentfield": "lessons",
+				"idx": idx,
+			}
+		)
 
-    lesson_reference.update({"lesson": doc.name})
-    lesson_reference.save(ignore_permissions=True)
-    return doc.name
+	lesson_reference.update({"lesson": doc.name})
+	lesson_reference.save(ignore_permissions=True)
+	return doc.name
 
 
 @frappe.whitelist()
@@ -359,3 +390,73 @@ def reorder_chapter(chapter_array):
 					"idx": chapter_array.index(chap) + 1,
 				},
 			)
+
+
+def authenticate():
+	zoom = frappe.get_single("Zoom Settings")
+	if not zoom.enable:
+		frappe.throw(_("Please enable Zoom Settings to use this feature."))
+
+	authenticate_url = f"https://zoom.us/oauth/token?grant_type=account_credentials&account_id={zoom.account_id}"
+
+	headers = {
+		"Authorization": "Basic "
+		+ base64.b64encode(
+			bytes(
+				zoom.client_id
+				+ ":"
+				+ zoom.get_password(fieldname="client_secret", raise_exception=False),
+				encoding="utf8",
+			)
+		).decode()
+	}
+	response = requests.request("POST", authenticate_url, headers=headers)
+	return response.json()["access_token"]
+
+
+@frappe.whitelist()
+def create_live_class(
+	course_name, title, duration, date, time, timezone, auto_recording, description=None
+):
+	frappe.only_for("Moderator")
+	payload = {
+		"topic": title,
+		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
+		"duration": duration,
+		"agenda": description,
+		"private_meeting": True,
+		"auto_recording": (
+			"none" if auto_recording == "No Recording" else auto_recording.lower()
+		),
+		"timezone": timezone,
+	}
+	headers = {
+		"Authorization": "Bearer " + authenticate(),
+		"content-type": "application/json",
+	}
+	response = requests.post(
+		"https://api.zoom.us/v2/users/me/meetings",
+		headers=headers,
+		data=json.dumps(payload),
+	)
+
+	if response.status_code == 201:
+		data = json.loads(response.text)
+		payload.update(
+			{
+				"doctype": "LMS Live Class",
+				"start_url": data.get("start_url"),
+				"join_url": data.get("join_url"),
+				"title": title,
+				"host": frappe.session.user,
+				"date": date,
+				"time": time,
+				"course_name": course_name,
+				"password": data.get("password"),
+				"description": description,
+				"auto_recording": auto_recording,
+			}
+		)
+		class_details = frappe.get_doc(payload)
+		class_details.save()
+		return class_details

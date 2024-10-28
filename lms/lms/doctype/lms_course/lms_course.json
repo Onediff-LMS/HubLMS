@@ -30,6 +30,8 @@
   "upcoming",
   "featured",
   "disable_self_learning",
+  "where_you_can_see_your_own_students",
+  "where_you_can_see_all_students",
   "section_break_18",
   "short_introduction",
   "column_break_viqw",
@@ -262,7 +264,7 @@
    "fieldname": "students",
    "fieldtype": "Table",
    "label": "Students",
-   "options": "Batch Student"
+   "options": "Course Student"
   },
   {
    "fieldname": "assessment_tab",
@@ -274,6 +276,18 @@
    "fieldtype": "Table",
    "label": "Assessment",
    "options": "LMS Assessment"
+  },
+  {
+   "default": "0",
+   "fieldname": "where_you_can_see_your_own_students",
+   "fieldtype": "Check",
+   "label": "Where you can see your own students"
+  },
+  {
+   "default": "0",
+   "fieldname": "where_you_can_see_all_students",
+   "fieldtype": "Check",
+   "label": "Where you can see all students"
   }
  ],
  "is_published_field": "published",
@@ -300,7 +314,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2024-10-23 14:01:55.346780",
+ "modified": "2024-10-28 19:15:40.954762",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Course",

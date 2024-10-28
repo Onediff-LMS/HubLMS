@@ -1,9 +1,25 @@
 <template>
 	<div v-if="quiz.data">
-		<div class="bg-blue-100 py-2 px-2 mb-4 rounded-md text-sm text-blue-800">
-			<div class="leading-relaxed">
+		<div
+			class="bg-blue-100 space-y-1 py-2 px-2 rounded-md text-sm text-blue-800"
+		>
+			<div class="leading-5">
 				{{
 					__('This quiz consists of {0} questions.').format(questions.length)
+				}}
+			</div>
+			<div v-if="quiz.data?.duration" class="leading-5">
+				{{
+					__(
+						'Please ensure that you complete all the questions in {0} minutes.'
+					).format(quiz.data.duration)
+				}}
+			</div>
+			<div v-if="quiz.data?.duration" class="leading-5">
+				{{
+					__(
+						'If you fail to do so, the quiz will be automatically submitted when the timer ends.'
+					)
 				}}
 			</div>
 			<div v-if="quiz.data.passing_percentage" class="leading-relaxed">
@@ -22,14 +38,16 @@
 					)
 				}}
 			</div>
-			<div v-if="quiz.data.time" class="leading-relaxed">
-				{{
-					__(
-						'The quiz has a time limit. For each question you will be given {0} seconds.'
-					).format(quiz.data.time)
-				}}
-			</div>
 		</div>
+
+		<div v-if="quiz.data.duration" class="flex items-center space-x-2 my-4">
+			<span class="text-gray-600 text-xs"> {{ __('Time') }}: </span>
+			<ProgressBar :progress="timerProgress" />
+			<span class="font-semibold">
+				{{ formatTimer(timer) }}
+			</span>
+		</div>
+
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
 				<div class="font-semibold text-lg">
@@ -63,19 +81,12 @@
 					class="border rounded-md p-5"
 				>
 					<div class="flex justify-between">
-						<div class="text-sm">
+						<div class="text-sm text-gray-600">
 							<span class="mr-2">
 								{{ __('Question {0}').format(activeQuestion) }}:
 							</span>
-							<span v-if="questionDetails.data.type == 'User Input'">
-								{{ __('Type your answer') }}
-							</span>
-							<span v-else>
-								{{
-									questionDetails.data.multiple
-										? __('Choose all answers that apply')
-										: __('Choose one answer')
-								}}
+							<span>
+								{{ getInstructions(questionDetails.data) }}
 							</span>
 						</div>
 						<div class="text-gray-900 text-sm font-semibold item-left">
@@ -139,7 +150,7 @@
 							{{ questionDetails.data[`explanation_${index}`] }}
 						</div>
 					</div>
-					<div v-else>
+					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
 							type="textarea"
@@ -159,8 +170,18 @@
 							</Badge>
 						</div>
 					</div>
-					<div class="flex items-center justify-between mt-5">
-						<div>
+					<div v-else>
+						<TextEditor
+							class="mt-4"
+							:content="possibleAnswer"
+							@change="(val) => (possibleAnswer = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-gray-100 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</div>
+					<div class="flex items-center justify-between mt-4">
+						<div class="text-sm text-gray-600">
 							{{
 								__('Question {0} of {1}').format(
 									activeQuestion,
@@ -169,7 +190,11 @@
 							}}
 						</div>
 						<Button
-							v-if="quiz.data.show_answers && !showAnswers.length"
+							v-if="
+								quiz.data.show_answers &&
+								!showAnswers.length &&
+								questionDetails.data.type != 'Open Ended'
+							"
 							@click="checkAnswer()"
 						>
 							<span>
@@ -193,11 +218,18 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center">
+		<div v-else class="border rounded-md p-20 text-center space-y-4">
 			<div class="text-lg font-semibold">
 				{{ __('Quiz Summary') }}
 			</div>
-			<div>
+			<div v-if="quizSubmission.data.is_open_ended">
+				{{
+					__(
+						"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
+					)
+				}}
+			</div>
+			<div v-else>
 				{{
 					__(
 						'You got {0}% correct answers with a score of {1} out of {2}'
@@ -236,20 +268,29 @@
 	</div>
 </template>
 <script setup>
-import { Badge, Button, createResource, ListView } from 'frappe-ui'
-import { ref, watch, reactive, inject } from 'vue'
+import {
+	Badge,
+	Button,
+	createResource,
+	ListView,
+	TextEditor,
+	FormControl,
+} from 'frappe-ui'
+import { ref, watch, reactive, inject, computed } from 'vue'
 import { createToast } from '@/utils/'
 import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
-import FormControl from 'frappe-ui/src/components/FormControl.vue'
-const user = inject('$user')
+import ProgressBar from '@/components/ProgressBar.vue'
 
+const user = inject('$user')
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = reactive([0, 0, 0, 0])
 const showAnswers = reactive([])
 let questions = reactive([])
 const possibleAnswer = ref(null)
+const timer = ref(0)
+let timerInterval = null
 
 const props = defineProps({
 	quizName: {
@@ -270,6 +311,7 @@ const quiz = createResource({
 	auto: true,
 	onSuccess(data) {
 		populateQuestions()
+		setupTimer()
 	},
 })
 
@@ -284,6 +326,37 @@ const populateQuestions = () => {
 		questions = data.questions
 	}
 }
+
+const setupTimer = () => {
+	if (quiz.data.duration) {
+		timer.value = quiz.data.duration * 60
+	}
+}
+
+const startTimer = () => {
+	timerInterval = setInterval(() => {
+		timer.value--
+		if (timer.value == 0) {
+			clearInterval(timerInterval)
+			submitQuiz()
+		}
+	}, 1000)
+}
+
+const formatTimer = (seconds) => {
+	const hrs = Math.floor(seconds / 3600)
+		.toString()
+		.padStart(2, '0')
+	const mins = Math.floor((seconds % 3600) / 60)
+		.toString()
+		.padStart(2, '0')
+	const secs = (seconds % 60).toString().padStart(2, '0')
+	return hrs != '00' ? `${hrs}:${mins}:${secs}` : `${mins}:${secs}`
+}
+
+const timerProgress = computed(() => {
+	return (timer.value / (quiz.data.duration * 60)) * 100
+})
 
 const shuffleArray = (array) => {
 	for (let i = array.length - 1; i > 0; i--) {
@@ -369,6 +442,7 @@ watch(
 const startQuiz = () => {
 	activeQuestion.value = 1
 	localStorage.removeItem(quiz.data.title)
+	if (quiz.data.duration) startTimer()
 }
 
 const markAnswer = (index) => {
@@ -450,9 +524,10 @@ const addToLocalStorage = () => {
 }
 
 const nextQuetion = () => {
-	if (!quiz.data.show_answers) {
+	if (!quiz.data.show_answers && questionDetails.data?.type != 'Open Ended') {
 		checkAnswer()
 	} else {
+		if (questionDetails.data?.type == 'Open Ended') addToLocalStorage()
 		resetQuestion()
 	}
 }
@@ -467,7 +542,8 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		checkAnswer()
+		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
+		else checkAnswer()
 		setTimeout(() => {
 			createSubmission()
 		}, 500)
@@ -477,9 +553,15 @@ const submitQuiz = () => {
 }
 
 const createSubmission = () => {
-	quizSubmission.reload().then(() => {
-		if (quiz.data && quiz.data.max_attempts) attempts.reload()
-	})
+	quizSubmission.submit(
+		{},
+		{
+			onSuccess(data) {
+				if (quiz.data && quiz.data.max_attempts) attempts.reload()
+				if (quiz.data.duration) clearInterval(timerInterval)
+			},
+		}
+	)
 }
 
 const resetQuiz = () => {
@@ -488,6 +570,14 @@ const resetQuiz = () => {
 	showAnswers.length = 0
 	quizSubmission.reset()
 	populateQuestions()
+	setupTimer()
+}
+
+const getInstructions = (question) => {
+	if (question.type == 'Choices')
+		if (question.multiple) return __('Choose all answers that apply')
+		else return __('Choose one answer')
+	else return __('Type your answer')
 }
 
 const getSubmissionColumns = () => {
