@@ -1619,13 +1619,34 @@ def get_batch_courses(batch):
 
 
 @frappe.whitelist()
-def get_assessments(parent, member=None):
+def get_assessments(batch, member=None):
     if not member:
         member = frappe.session.user
 
     assessments = frappe.get_all(
         "LMS Assessment",
-        {"parent": parent},
+        {"parent": batch},
+        ["name", "assessment_type", "assessment_name"],
+    )
+
+    for assessment in assessments:
+        if assessment.assessment_type == "LMS Assignment":
+            assessment = get_assignment_details(assessment, member)
+
+        elif assessment.assessment_type == "LMS Quiz":
+            assessment = get_quiz_details(assessment, member)
+
+    return assessments
+
+
+@frappe.whitelist()
+def get_assessments(course, member=None):
+    if not member:
+        member = frappe.session.user
+
+    assessments = frappe.get_all(
+        "LMS Assessment",
+        {"parent": course},
         ["name", "assessment_type", "assessment_name"],
     )
 
