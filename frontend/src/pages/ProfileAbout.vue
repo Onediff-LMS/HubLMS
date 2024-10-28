@@ -42,7 +42,7 @@
 							<img
 								:src="badge.badge_image"
 								:alt="badge.badge"
-								class="bg-gray-100 rounded-t-md"
+								class="bg-gray-100 rounded-t-md h-[200px] mx-auto"
 							/>
 							<div class="p-5">
 								<div class="text-2xl font-semibold mb-2">
@@ -142,7 +142,7 @@ const shareOnSocial = (badge, medium) => {
 	const summary = `I am happy to announce that I earned the ${
 		badge.badge
 	} badge on ${dayjs(badge.issued_on).format('DD MMM YYYY')} at ${
-		branding.data?.brand_name
+		branding.data?.app_name
 	}.`
 
 	if (medium == 'LinkedIn')

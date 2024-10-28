@@ -14,20 +14,21 @@ from frappe.desk.doctype.notification_log.notification_log import (
 from frappe.desk.search import get_user_groups
 from frappe.desk.notifications import extract_mentions
 from frappe.utils import (
-    add_months,
-    cint,
-    cstr,
-    flt,
-    fmt_money,
-    format_date,
-    get_datetime,
-    getdate,
-    validate_phone_number,
-    get_fullname,
-    pretty_date,
-    get_time_str,
-    nowtime,
-    format_datetime,
+	add_months,
+	cint,
+	cstr,
+	ceil,
+	flt,
+	fmt_money,
+	format_date,
+	get_datetime,
+	getdate,
+	validate_phone_number,
+	get_fullname,
+	pretty_date,
+	get_time_str,
+	nowtime,
+	format_datetime,
 )
 from frappe.utils.dateutils import get_period
 from lms.lms.md import find_macros, markdown_to_html
@@ -1032,7 +1033,7 @@ def check_multicurrency(amount, currency, country=None, amount_usd=None):
     if apply_rounding and amount % 100 != 0:
         amount = amount + 100 - amount % 100
 
-    return amount, currency
+	return ceil(amount), currency
 
 
 def apply_gst(amount, country=None):
@@ -1892,16 +1893,15 @@ def get_order_summary(doctype, docname, country=None):
                 _("To join this batch, please contact the Administrator.")
             )
 
-    details.amount, details.currency = check_multicurrency(
-        details.amount, details.currency, country, details.amount_usd
-    )
-    details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
+	details.amount, details.currency = check_multicurrency(
+		details.amount, details.currency, country, details.amount_usd
+	)
+	details.original_amount = details.amount
+	details.original_amount_formatted = fmt_money(details.amount, 0, details.currency)
 
-    if details.currency == "INR":
-        details.amount, details.gst_applied = apply_gst(details.amount)
-        details.gst_amount_formatted = fmt_money(
-            details.gst_applied, 0, details.currency
-        )
+	if details.currency == "INR":
+		details.amount, details.gst_applied = apply_gst(details.amount, country)
+		details.gst_amount_formatted = fmt_money(details.gst_applied, 0, details.currency)
 
     details.total_amount_formatted = fmt_money(details.amount, 0, details.currency)
     return details
@@ -1955,6 +1955,100 @@ def get_roles(name):
 
 
 def publish_notifications(doc, method):
-    frappe.publish_realtime(
-        "publish_lms_notifications", user=doc.for_user, after_commit=True
-    )
+	frappe.publish_realtime(
+		"publish_lms_notifications", user=doc.for_user, after_commit=True
+	)
+
+
+def update_payment_record(doctype, docname):
+	request = frappe.get_all(
+		"Integration Request",
+		{
+			"reference_doctype": doctype,
+			"reference_docname": docname,
+			"owner": frappe.session.user,
+		},
+		order_by="creation desc",
+		limit=1,
+	)
+
+	if len(request):
+		data = frappe.db.get_value("Integration Request", request[0].name, "data")
+		data = frappe._dict(json.loads(data))
+
+		payment_gateway = data.get("payment_gateway")
+		if payment_gateway == "Razorpay":
+			payment_id = "razorpay_payment_id"
+		elif "Stripe" in payment_gateway:
+			payment_id = "stripe_token_id"
+		else:
+			payment_id = "order_id"
+
+		frappe.db.set_value(
+			"LMS Payment",
+			data.payment,
+			{
+				"payment_received": 1,
+				"payment_id": data.get(payment_id),
+				"order_id": data.get("order_id"),
+			},
+		)
+
+		try:
+			if doctype == "LMS Course":
+				enroll_in_course(data.payment, docname)
+			else:
+				enroll_in_batch(docname, data.payment)
+		except Exception as e:
+			frappe.log_error(frappe.get_traceback(), _("Enrollment Failed"))
+
+
+def enroll_in_course(payment_name, course):
+	if not frappe.db.exists(
+		"LMS Enrollment", {"member": frappe.session.user, "course": course}
+	):
+		enrollment = frappe.new_doc("LMS Enrollment")
+		payment = frappe.db.get_value(
+			"LMS Payment", payment_name, ["name", "source"], as_dict=True
+		)
+
+		enrollment.update(
+			{
+				"member": frappe.session.user,
+				"course": course,
+				"payment": payment.name,
+			}
+		)
+		enrollment.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def enroll_in_batch(batch, payment_name=None):
+	if not frappe.db.exists(
+		"Batch Student", {"parent": batch, "student": frappe.session.user}
+	):
+		student = frappe.new_doc("Batch Student")
+		current_count = frappe.db.count("Batch Student", {"parent": batch})
+
+		student.update(
+			{
+				"student": frappe.session.user,
+				"parent": batch,
+				"parenttype": "LMS Batch",
+				"parentfield": "students",
+				"idx": current_count + 1,
+			}
+		)
+
+		if payment_name:
+			payment = frappe.db.get_value(
+				"LMS Payment", payment_name, ["name", "source"], as_dict=True
+			)
+			student.update(
+				{
+					"payment": payment.name,
+					"source": payment.source,
+				}
+			)
+
+		student.save(ignore_permissions=True)

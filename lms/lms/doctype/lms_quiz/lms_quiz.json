@@ -12,6 +12,8 @@
   "total_marks",
   "passing_percentage",
   "section_break_yayn",
+  "duration",
+  "section_break_tzbu",
   "shuffle_questions",
   "column_break_hidl",
   "limit_questions_to",
@@ -236,11 +238,16 @@
    "fieldname": "forced_submitted_time",
    "fieldtype": "Time",
    "label": "Forced Submitted Time"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Duration",
+   "label": "Duration"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-11 19:01:25.583803",
+ "modified": "2024-10-11 22:39:40.381183",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz",
