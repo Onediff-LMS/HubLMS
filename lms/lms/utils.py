@@ -1640,7 +1640,7 @@ def get_assessments(batch, member=None):
 
 
 @frappe.whitelist()
-def get_assessments(course, member=None):
+def get_course_assessments(course, member=None):
     if not member:
         member = frappe.session.user
 

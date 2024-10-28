@@ -42,36 +42,36 @@
 							</button>
 						</div>
 					</template>
-					<!-- <template #default="{ tab }">
+					<template #default="{ tab }">
 						<div class="pt-5 px-5 pb-10">
 							
 							<div v-if="tab.label == 'Dashboard'">
 								<BatchDashboard :batch="batch" :isStudent="isStudent" />
 							</div>
 							<div v-else-if="tab.label == 'Live Class'">
-								<LiveClass :batch="batch.data.name" />
+								<LiveClass :course="course.data.name" /> 
 							</div>
 							<div v-else-if="tab.label == 'Students'">
-								<BatchStudents :batch="batch.data.name" />
+								<Students :course="course.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Assessments'">
-								<Assessments :batch="batch.data.name" />
+								<Assessments :course="course.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Announcements'">
-								<Announcements :batch="batch.data.name" />
+								<Announcements :course="course.data.name" />
 							</div>
 							<div v-else-if="tab.label == 'Discussions'">
 								<Discussions
-									doctype="LMS Batch"
-									:docname="batch.data.name"
+									doctype="LMS Course"
+									:docname="course.data.name"
 									:title="__('Discussions')"
-									:key="batch.data.name"
+									:key="course.data.name"
 									:singleThread="true"
 									:scrollToBottom="true"
 								/>
 							</div>
 						</div>
-					</template> -->
+					</template>
 				</Tabs>
 			</div>
 			<div class="p-5">
@@ -215,13 +215,14 @@ import {
 import { formatTime, updateDocumentTitle } from '@/utils'
 import BatchDashboard from '@/components/BatchDashboard.vue'
 import BatchCourses from '@/components/BatchCourses.vue'
-import LiveClass from '@/components/LiveClass.vue'
+import LiveClass from '@/components/CourseLiveClass.vue'
 import BatchStudents from '@/components/BatchStudents.vue'
-import Assessments from '@/components/Assessments.vue'
-import Announcements from '@/components/Annoucements.vue'
+import Announcements from '@/components/CourseAnnoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
 import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
+import Students from '@/components/CourseStudents.vue'
+import Assessments from '@/components/CourseAssessments.vue'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
@@ -304,7 +305,6 @@ const openAnnouncementModal = () => {
 const pageMeta = computed(() => {
 	return {
 		title: course.data?.title,
-		description: course.data?.description,
 	}
 })
 
