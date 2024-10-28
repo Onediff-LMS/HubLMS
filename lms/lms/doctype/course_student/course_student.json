@@ -11,6 +11,7 @@
   "student",
   "student_name",
   "username",
+  "instructors",
   "column_break_oduu",
   "payment",
   "source",
@@ -66,12 +67,19 @@
    "fieldname": "confirmation_email_sent",
    "fieldtype": "Check",
    "label": "Confirmation Email Sent"
+  },
+  {
+   "fieldname": "instructors",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Instructors",
+   "options": "User"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-24 16:28:48.106346",
+ "modified": "2024-10-28 19:36:28.197257",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Student",
