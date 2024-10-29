@@ -1792,30 +1792,24 @@ def get_course_students(course):
     course_settings = frappe.get_value(
         "LMS Course",
         course,
-        ["where_you_can_see_your_own_students", "where_you_can_see_all_students"],
-        as_dict=True,
+        ["where_you_can_see_all_students"]
     )
 
-    if not course_settings:
-        return students
-
-    if course_settings.where_you_can_see_all_students:
+    if course_settings:
         students_list = frappe.get_all(
-            "Course Student", filters={"parent": course}, fields=["student", "name"]
+            "Course Student",
+            filters={"parent": course},
+            fields=["student", "name", "instructor"],
         )
-
-    elif course_settings.where_you_can_see_your_own_students:
+    else:
         students_list = frappe.get_all(
             "Course Student",
             filters={
                 "parent": course,
                 "instructor": user,
             },
-            fields=["student", "name"],
+            fields=["student", "name", "instructor"],
         )
-
-    else:
-        return students
 
     assessments = frappe.get_all(
         "LMS Assessment",
@@ -1833,6 +1827,7 @@ def get_course_students(course):
         )
         detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
         detail.name = student.name
+        detail.instructor = student.instructor
 
         for assessment in assessments:
             if has_submitted_assessment(
