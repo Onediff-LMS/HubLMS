@@ -73,6 +73,21 @@
 				{{ __('Get Certificate') }}
 			</Button>
 			<router-link
+				v-if="user?.data?.is_moderator"
+				:to="{
+					name: 'ManageCourse',
+					params: {
+						courseName: course.data.name,
+					},
+				}"
+			>
+				<Button variant="solid" class="w-full mt-2" size="md">
+					<span>
+						{{ __('Manage Course') }}
+					</span>
+				</Button>
+			</router-link>
+			<router-link
 				v-if="user?.data?.is_moderator || is_instructor()"
 				:to="{
 					name: 'CourseForm',
@@ -87,6 +102,7 @@
 					</span>
 				</Button>
 			</router-link>
+			
 			<div class="mt-8 mb-4 font-medium">
 				{{ __('This course has:') }}
 			</div>
