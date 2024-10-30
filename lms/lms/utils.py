@@ -1799,16 +1799,16 @@ def get_course_students(course):
         students_list = frappe.get_all(
             "Course Student",
             filters={"parent": course},
-            fields=["student", "name", "instructor"],
+            fields=["student", "name", "instructors"],
         )
     else:
         students_list = frappe.get_all(
             "Course Student",
             filters={
                 "parent": course,
-                "instructor": user,
+                "instructors": user,
             },
-            fields=["student", "name", "instructor"],
+            fields=["student", "name", "instructors"],
         )
 
     assessments = frappe.get_all(
@@ -1827,7 +1827,7 @@ def get_course_students(course):
         )
         detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
         detail.name = student.name
-        detail.instructor = student.instructor
+        detail.instructors = student.instructors
 
         for assessment in assessments:
             if has_submitted_assessment(
@@ -1838,6 +1838,41 @@ def get_course_students(course):
         students.append(detail)
 
     return students
+
+
+@frappe.whitelist()
+def get_assignment_submission(course, assessment_name, assessment_type):
+    students_with_submission = []
+    students_without_submission = []
+
+    students_list = frappe.get_all(
+        "Course Student", filters={"parent": course}, fields=["student", "name"]
+    )
+
+    for student in students_list:
+        submission_exists = has_submitted_assessment(
+            assessment_name, assessment_type, student.student
+        )
+
+        student_detail = frappe.db.get_value(
+            "User",
+            student.student,
+            ["full_name", "email", "username", "last_active", "user_image"],
+            as_dict=True,
+        )
+        student_detail.name = student.name
+        student_detail.submission_status = (
+            "Submitted" if submission_exists else "Not Submitted"
+        )
+        if submission_exists:
+            students_with_submission.append(student_detail)
+        else:
+            students_without_submission.append(student_detail)
+
+    return {
+        "submitted": students_with_submission,
+        "not_submitted": students_without_submission,
+    }
 
 
 @frappe.whitelist()
