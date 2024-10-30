@@ -1841,6 +1841,41 @@ def get_course_students(course):
 
 
 @frappe.whitelist()
+def get_assignment_submission(course, assessment_name, assessment_type):
+    students_with_submission = []
+    students_without_submission = []
+
+    students_list = frappe.get_all(
+        "Course Student", filters={"parent": course}, fields=["student", "name"]
+    )
+
+    for student in students_list:
+        submission_exists = has_submitted_assessment(
+            assessment_name, assessment_type, student.student
+        )
+
+        student_detail = frappe.db.get_value(
+            "User",
+            student.student,
+            ["full_name", "email", "username", "last_active", "user_image"],
+            as_dict=True,
+        )
+        student_detail.name = student.name
+        student_detail.submission_status = (
+            "Submitted" if submission_exists else "Not Submitted"
+        )
+        if submission_exists:
+            students_with_submission.append(student_detail)
+        else:
+            students_without_submission.append(student_detail)
+
+    return {
+        "submitted": students_with_submission,
+        "not_submitted": students_without_submission,
+    }
+
+
+@frappe.whitelist()
 def get_discussion_topics(doctype, docname, single_thread):
     if single_thread:
         filters = {
