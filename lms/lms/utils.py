@@ -1402,6 +1402,8 @@ def get_lesson(course, chapter, lesson):
     lesson_details = frappe.db.get_value(
         "Course Lesson", lesson_name, ["include_in_preview", "title"], as_dict=1
     )
+    if not lesson_details:
+        frappe.throw("No Data available")
     membership = get_membership(course)
     course_title = frappe.db.get_value("LMS Course", course, "title")
     if (
@@ -1790,25 +1792,23 @@ def get_course_students(course):
     user = frappe.session.user
 
     course_settings = frappe.get_value(
-        "LMS Course",
-        course,
-        ["where_you_can_see_all_students"]
+        "LMS Course", course, ["where_you_can_see_all_students"]
     )
 
     if course_settings:
         students_list = frappe.get_all(
             "Course Student",
             filters={"parent": course},
-            fields=["student", "name", "instructor"],
+            fields=["student", "name", "instructors"],
         )
     else:
         students_list = frappe.get_all(
             "Course Student",
             filters={
                 "parent": course,
-                "instructor": user,
+                "instructors": user,
             },
-            fields=["student", "name", "instructor"],
+            fields=["student", "name", "instructors"],
         )
 
     assessments = frappe.get_all(
@@ -1827,7 +1827,7 @@ def get_course_students(course):
         )
         detail.last_active = format_datetime(detail.last_active, "dd MMM YY")
         detail.name = student.name
-        detail.instructor = student.instructor
+        detail.instructors = student.instructors
 
         for assessment in assessments:
             if has_submitted_assessment(

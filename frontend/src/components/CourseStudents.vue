@@ -113,11 +113,19 @@ const getStudentColumns = () => {
 		{
 			label: 'Full Name',
 			key: 'full_name',
-			width: 2,
+		},
+		{
+			label: 'Email',
+			key: 'email',
 		},
 		{
 			label: 'Assessments Done',
 			key: 'assessments_completed',
+			align: 'center',
+		},
+		{
+			label: 'Instructor',
+			key: 'instructors',
 			align: 'center',
 		},
 		{

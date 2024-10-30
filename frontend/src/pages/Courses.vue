@@ -74,6 +74,17 @@
 						<router-link
 							v-for="course in tab.courses.value"
 							:to="
+								 {
+											name: 'CourseDetail',
+											params: { courseName: course.name },
+									  }
+							"
+						>
+							<CourseCard :course="course" />
+						</router-link>
+						<!-- <router-link
+							v-for="course in tab.courses.value"
+							:to="
 								course.membership && course.current_lesson
 									? {
 											name: 'Lesson',
@@ -99,7 +110,7 @@
 							"
 						>
 							<CourseCard :course="course" />
-						</router-link>
+						</router-link> -->
 					</div>
 					<div
 						v-else

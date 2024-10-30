@@ -252,23 +252,23 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
-// const isStudent = computed(() => {
-// 	return (
-// 		user?.data &&
-// 		batch.data?.students.length &&
-// 		batch.data?.students.includes(user.data.name)
-// 	)
-// })
+const isStudent = computed(() => {
+	return (
+		user?.data &&
+		course.data?.students.length &&
+		course.data?.students.includes(user.data.name)
+	)
+})
 
 const tabIndex = ref(0)
 const tabs = computed(() => {
 	let batchTabs = []
-	// if (isStudent.value) {
+	if (isStudent.value) {
 		batchTabs.push({
 			label: 'Dashboard',
 			icon: LayoutDashboard,
 		})
-	// }
+	}
 	if (user.data?.is_moderator) {
 		batchTabs.push({
 			label: 'Students',
