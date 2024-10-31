@@ -1841,38 +1841,67 @@ def get_course_students(course):
 
 
 @frappe.whitelist()
-def get_assignment_submission(course, assessment_name, assessment_type):
-    students_with_submission = []
-    students_without_submission = []
+def get_assignment_submission(course, assessment_name=None):
 
-    students_list = frappe.get_all(
-        "Course Student", filters={"parent": course}, fields=["student", "name"]
+    if assessment_name:
+        assessment_filters = {"parent": course, "assessment_name": assessment_name}
+    else:
+        assessment_filters = {"parent": course}
+
+    assessment_list = frappe.get_all(
+        "LMS Assessment",
+        filters=assessment_filters,
+        fields=["assessment_name", "assessment_type"],
     )
 
-    for student in students_list:
-        submission_exists = has_submitted_assessment(
-            assessment_name, assessment_type, student.student
+    students_list = frappe.get_all(
+        "Course Student",
+        filters={"parent": course},
+        fields=["student", "name", "instructors"],
+    )
+
+    response = []
+    for assessment in assessment_list:
+        students_list_response = []
+        for student in students_list:
+            submission_exists = has_submitted_assessment(
+                assessment.get("assessment_name"),
+                assessment.get("assessment_type"),
+                student.student,
+            )
+
+            student_detail = frappe.db.get_value(
+                "User",
+                student.student,
+                ["full_name", "email", "username", "last_active", "user_image"],
+                as_dict=True,
+            )
+            student_detail.name = student.name
+            student_detail.instructors = student.instructors
+            student_detail.submission_id = (
+                submission_exists if submission_exists else None
+            )
+            if submission_exists:
+                student_detail.submission_data = frappe.get_doc(
+                    "LMS Assignment Submission", submission_exists
+                )
+
+            student_detail.submission_status = (
+                "Submitted" if submission_exists else "Not Submitted"
+            )
+
+            students_list_response.append(student_detail)
+        response.append(
+            {
+                "group": frappe.get_value(
+                    "LMS Assignment", assessment.get("assessment_name"), "title"
+                ),
+                "collapsed": True,
+                "rows": students_list_response,
+            }
         )
 
-        student_detail = frappe.db.get_value(
-            "User",
-            student.student,
-            ["full_name", "email", "username", "last_active", "user_image"],
-            as_dict=True,
-        )
-        student_detail.name = student.name
-        student_detail.submission_status = (
-            "Submitted" if submission_exists else "Not Submitted"
-        )
-        if submission_exists:
-            students_with_submission.append(student_detail)
-        else:
-            students_without_submission.append(student_detail)
-
-    return {
-        "submitted": students_with_submission,
-        "not_submitted": students_without_submission,
-    }
+    return response
 
 
 @frappe.whitelist()
